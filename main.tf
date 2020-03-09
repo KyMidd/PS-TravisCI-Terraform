@@ -211,7 +211,7 @@ resource "aws_instance" "cisco_asav" {
     device_index         = 1
   }
 
-  user_data = file("aws_cisco_asav_config.txt")
+  user_data = file("ASAv_Init_Config/asav_init_config.txt")
 
   tags = {
     Name = local.cisco_asav_name
