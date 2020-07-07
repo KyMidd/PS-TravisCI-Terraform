@@ -1,15 +1,13 @@
 # Require TF version to be same as or greater than 0.12.19
 terraform {
   required_version = ">=0.12.19"
-  /*
   backend "s3" {
-    bucket         = "unique-s3-bucket-name-you-created"
+    bucket         = "mysampleterraform07072020123"
     key            = "terraform.tfstate"
     region         = "us-east-1"
     dynamodb_table = "aws-locks"
     encrypt        = true
   }
-*/
 }
 
 # Download AWS provider
@@ -21,7 +19,7 @@ provider "aws" {
 # Terraform bootstrapping
 module "bootstrap" {
   source                      = "./modules/bootstrap"
-  name_of_s3_bucket           = "unique-s3-bucket-name-you-created"
+  name_of_s3_bucket           = "mysampleterraform07072020123"
   dynamo_db_table_name        = "aws-locks"
   iam_user_name               = "IamUser"
   ado_iam_role_name           = "IamRole"
