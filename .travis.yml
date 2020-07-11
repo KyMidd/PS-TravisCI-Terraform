@@ -1,0 +1,75 @@
+# Define environment
+os: linux  # The default OS
+dist: xenial # Ubuntu 16.04
+arch: arm64 # Architecture signifying a containerized version of Linux to boot faster
+
+# Define language
+language: shell  # aka, bash on Linux
+
+# Only build PRs against master branch or pushes to master branch
+branches:
+  only:
+    - master
+
+# Export global variables into shell
+env:
+  global:
+    # Setting the version of terraform - https://github.com/hashicorp/terraform/releases
+    - tf_version=0.12.19
+
+    # Setting terraform init CLI options - https://www.terraform.io/docs/commands/init.html
+    - tf_init_cli_options=" -input=false"
+
+    # Set terraform validation CLI options - https://www.terraform.io/docs/commands/validate.html
+    - tf_validation_cli_options=""
+
+    # Set terraform plan CLI options - https://www.terraform.io/docs/commands/plan.html
+    - tf_plan_cli_options=" -lock=false -input=false"
+
+    # Set terraform apply CLI options - https://www.terraform.io/docs/commands/apply.html
+    - tf_apply_cli_options=" -auto-approve -input=false"
+
+jobs:
+  include:
+    - stage: terraform plan
+
+      # Terraform Plan: As part of a pull request or kicked off by an API
+      if: type IN (pull_request, api)
+
+      install:
+        # Download and install terraform before each run
+        - wget https://releases.hashicorp.com/terraform/"$tf_version"/terraform_"$tf_version"_linux_amd64.zip
+        - unzip terraform_"$tf_version"_linux_amd64.zip
+        - sudo mv terraform /usr/local/bin/
+        - rm terraform_"$tf_version"_linux_amd64.zip
+
+      script:
+        # Check if terraform fmt correct. If not, fail validation
+        - echo "Validating Terraform fmt"
+        - terraform fmt -recursive -check
+
+        - echo "Pull request detected, creating change plan"
+
+        # Terraform init, validate, then create change plan. If any fail, fail validation
+        - terraform init $tf_init_cli_options
+        - terraform validate $tf_validation_cli_options
+        - terraform plan $tf_plan_cli_options
+
+    - stage: terraform apply
+
+      # Terraform Apply: Only when pushing direct to master, or when PR merge into master
+      if: type IN (push) and branch = master
+
+      install:
+        # Download and install terraform before each run
+        - wget https://releases.hashicorp.com/terraform/"$tf_version"/terraform_"$tf_version"_linux_amd64.zip
+        - unzip terraform_"$tf_version"_linux_amd64.zip
+        - sudo mv terraform /usr/local/bin/
+        - rm terraform_"$tf_version"_linux_amd64.zip
+
+      script:
+        - echo "Merge detected, executing changes"
+
+        # Terraform init and then apply changes to environment
+        - terraform init $tf_init_cli_options
+        - terraform apply $tf_apply_cli_options
