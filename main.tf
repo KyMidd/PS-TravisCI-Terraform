@@ -15,7 +15,7 @@ terraform {
 # Download AWS provider
 provider "aws" {
   region  = "us-east-1"
-  version = "~> 2.36.0"
+  version = "~> 2.58.0"
 }
 
 # Terraform bootstrapping
@@ -197,8 +197,8 @@ resource "aws_eip" "cisco_asav_elastic_public_ip" {
 # Build the ASAv
 resource "aws_instance" "cisco_asav" {
   # This AMI is only valid in us-east-1 region, with this specific instance type
-  ami           = "ami-01b0bfec54ba93d12"
-  instance_type = "c4.large"
+  ami           = "ami-0ba750178f6405ece"
+  instance_type = "c5.xlarge"
   key_name      = local.ssh_key_name
 
   network_interface {

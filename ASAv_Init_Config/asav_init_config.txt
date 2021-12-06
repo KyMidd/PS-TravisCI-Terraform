@@ -1,5 +1,5 @@
 hostname AwsCiscoASAv
-int gi 0/0
+int tengig 0/0
  nameif outside
  security-level 0
  ip address dhcp setroute
